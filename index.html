@@ -11,193 +11,33 @@
         />
     </head>
     <body>
-        <div id="app"></div>
-        <script>
-            let plugins = [];
-            let categories = [];
-            let activeCategory = "All";
-            let searchQuery = "";
-
-            async function initialize() {
-                try {
-                    const [categoriesResponse, pluginsResponse] =
-                        await Promise.all([
-                            fetch(
-                                "https://raw.githubusercontent.com/bennowoforks/gauntlet-plugin-store/main/database/categories.json",
-                            ),
-                            fetch(
-                                "https://raw.githubusercontent.com/bennowoforks/gauntlet-plugin-store/main/database/plugins.json",
-                            ),
-                        ]);
-
-                    categories = await categoriesResponse.json();
-                    plugins = await pluginsResponse.json();
-                    categories.unshift("All"); // Add 'All' category
-                    renderPlugins();
-                } catch (error) {
-                    console.error("Error loading data:", error);
-                    showErrorMessage();
-                }
-            }
-
-            function filterPlugins() {
-                return Object.entries(plugins).filter(([url, plugin]) => {
-                    const matchesSearch =
-                        searchQuery === "" ||
-                        plugin.name
-                            .toLowerCase()
-                            .includes(searchQuery.toLowerCase()) ||
-                        plugin.description
-                            .toLowerCase()
-                            .includes(searchQuery.toLowerCase());
-
-                    const matchesCategory =
-                        activeCategory === "All" ||
-                        plugin.categories?.includes(activeCategory);
-
-                    return matchesSearch && matchesCategory;
-                });
-            }
-
-            function renderPlugins() {
-                const app = document.getElementById("app");
-                const filteredPlugins = filterPlugins();
-
-                app.innerHTML = `
-                <div class="container">
-                    <header class="header">
-                        <div class="header-content">
-                            <h1><i class="fas fa-puzzle-piece"></i> Gauntlet Plugin Gallery</h1>
-                            <p class="subtitle">Discover and integrate powerful plugins for your project</p>
-                        </div>
-                        <div class="search-container">
-                            <i class="fas fa-search search-icon"></i>
-                            <input
-                                type="search"
-                                class="search-bar"
-                                placeholder="Search plugins..."
-                                onInput="handleSearch(event)"
-                            >
-                        </div>
-                    </header>
-
-                    <div class="categories">
-                        ${categories
-                            .map(
-                                (category) => `
-                            <div class="category-pill ${category === activeCategory ? "active" : ""}"
-                                 onclick="handleCategoryClick('${category}')">
-                                <i class="fas fa-tag"></i> ${category}
-                            </div>
-                        `,
-                            )
-                            .join("")}
+        <div id="app">
+            <div class="container">
+                <header class="header">
+                    <div class="header-content">
+                        <h1>
+                            <i class="fas fa-puzzle-piece"></i> Gauntlet Plugin
+                            Gallery
+                        </h1>
+                        <p class="subtitle">
+                            Discover and integrate powerful plugins for your
+                            project
+                        </p>
                     </div>
-
-                    ${
-                        filteredPlugins.length === 0
-                            ? `
-                        <div class="no-results">
-                            <i class="fas fa-search"></i>
-                            <p>No plugins found matching your criteria</p>
-                        </div>
-                    `
-                            : `
-                        <div class="plugins-grid">
-                            ${filteredPlugins
-                                .map(
-                                    ([url, plugin]) => `
-                                <div class="plugin-card">
-                                    <div class="plugin-header">
-                                        <h3 class="plugin-title">
-                                            <i class="fas fa-cube"></i> ${plugin.name}
-                                        </h3>
-                                        <div class="plugin-badges">
-                                            ${
-                                                plugin.version
-                                                    ? `
-                                                <span class="badge version">v${plugin.version}</span>
-                                            `
-                                                    : ""
-                                            }
-                                            ${
-                                                plugin.status
-                                                    ? `
-                                                <span class="badge status">${plugin.status}</span>
-                                            `
-                                                    : ""
-                                            }
-                                        </div>
-                                    </div>
-                                    <p class="plugin-description">${plugin.description}</p>
-                                    <div class="plugin-details">
-                                        <div class="section-title">
-                                            <i class="fas fa-code"></i> Entry Points
-                                        </div>
-                                        <div class="entrypoints">
-                                            ${plugin.entrypoint
-                                                .map(
-                                                    (entry) => `
-                                                <div class="entrypoint">
-                                                    <span class="type">${entry.type}</span>
-                                                    <span class="name">${entry.name}</span>
-                                                    <p class="description">${entry.description}</p>
-                                                </div>
-                                            `,
-                                                )
-                                                .join("")}
-                                        </div>
-                                        <div class="section-title">
-                                            <i class="fas fa-lock"></i> Permissions
-                                        </div>
-                                        <div class="permissions">
-                                            ${Object.entries(plugin.permissions)
-                                                .map(
-                                                    ([perm, access]) => `
-                                                <span class="permission" title="${access.join(", ")}">
-                                                    ${perm}
-                                                </span>
-                                            `,
-                                                )
-                                                .join("")}
-                                        </div>
-                                    </div>
-                                    <a href="${url}" class="plugin-url" target="_blank">
-                                        <i class="fab fa-github"></i> View on GitHub
-                                    </a>
-                                </div>
-                            `,
-                                )
-                                .join("")}
-                        </div>
-                    `
-                    }
-                </div>
-            `;
-            }
-
-            function handleSearch(event) {
-                searchQuery = event.target.value;
-                renderPlugins();
-            }
-
-            function handleCategoryClick(category) {
-                activeCategory = category;
-                renderPlugins();
-            }
-
-            function showErrorMessage() {
-                const app = document.getElementById("app");
-                app.innerHTML = `
-                <div class="error-message">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <h2>Error Loading Plugins</h2>
-                    <p>Please try refreshing the page</p>
-                </div>
-            `;
-            }
-
-            initialize();
-        </script>
+                    <div class="search-container">
+                        <i class="fas fa-search search-icon"></i>
+                        <input
+                            type="search"
+                            id="searchInput"
+                            class="search-bar"
+                            placeholder="Search plugins..."
+                        />
+                    </div>
+                </header>
+                <div id="categoryContainer" class="categories"></div>
+                <div id="pluginContainer" class="plugins-grid"></div>
+            </div>
+        </div>
+        <script src="js/app.js"></script>
     </body>
 </html>
