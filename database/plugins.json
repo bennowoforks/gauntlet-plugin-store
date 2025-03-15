@@ -1,0 +1,57 @@
+{
+  "https://github.com/Mrid22/gauntlet-colors": {
+    "name": "Color Converter",
+    "description": "Convert colors to and from anything",
+    "entrypoint": [
+      {
+        "id": "template-view",
+        "name": "Color Converter",
+        "path": "src/template-view.tsx",
+        "type": "view",
+        "description": "Shows results in all formats"
+      },
+      {
+        "id": "inline-view",
+        "name": "Color Converter",
+        "path": "src/inline-view.tsx",
+        "type": "inline-view",
+        "description": "Show result in your favorite format",
+        "preferences": [
+          {
+            "id": "bundleNameLang",
+            "name": "Inline Conversion",
+            "type": "enum",
+            "default": "hex",
+            "description": "Which conversion to show in inline view",
+            "enum_values": [
+              {
+                "label": "Name",
+                "value": "name"
+              },
+              {
+                "label": "Hex",
+                "value": "hex"
+              },
+              {
+                "label": "Rgb",
+                "value": "rgb"
+              },
+              {
+                "label": "Hsl",
+                "value": "hsl"
+              },
+              {
+                "label": "Cmyk",
+                "value": "Cmyk"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "permissions": {
+      "main_search_bar": ["read"],
+      "clipboard": ["write"]
+    }
+  }
+}

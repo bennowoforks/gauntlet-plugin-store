@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Plugin Gallery</title>
+        <link rel="stylesheet" href="css/styles.css" />
+    </head>
+    <body>
+        <div id="app"></div>
+        <script>
+            let plugins = [];
+
+            fetch(
+                "https://raw.githubusercontent.com/bennowoforks/gauntlet-plugin-store/main/database/plugins.json",
+            )
+                .then((response) => response.json())
+                .then((data) => {
+                    plugins = data;
+                    renderApp();
+                })
+                .catch((error) =>
+                    console.error("Error loading plugins:", error),
+                );
+
+            function renderPlugins() {
+                const app = document.getElementById("app");
+
+                app.innerHTML = `
+                    <div class="container">
+                        <header class="header">
+                            <h1>Plugin Gallery</h1>
+                            <input type="search" class="search-bar" placeholder="Search plugins...">
+                        </header>
+
+                        <div class="categories">
+                            ${categories
+                                .map(
+                                    (category) => `
+                                <div class="category-pill">${category}</div>
+                            `,
+                                )
+                                .join("")}
+                        </div>
+
+                        <div class="plugins-grid">
+                            ${plugins
+                                .map(
+                                    (plugin) => `
+                                <div class="plugin-card">
+                                    <img src="${plugin.icon}" alt="plugin icon" class="plugin-icon">
+                                    <h3 class="plugin-title">${plugin.title}</h3>
+                                    <p class="plugin-author">by ${plugin.author}</p>
+                                    <p class="plugin-description">${plugin.description}</p>
+                                    <div class="stats">
+                                        <span>★ ${plugin.rating}</span>
+                                        <span>Downloads: ${plugin.downloads}</span>
+                                    </div>
+                                </div>
+                            `,
+                                )
+                                .join("")}
+                        </div>
+                    </div>
+                `;
+            }
+        </script>
+    </body>
+</html>
