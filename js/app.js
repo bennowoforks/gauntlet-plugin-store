@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const categoryContainer = document.getElementById("categoryContainer");
   const pluginContainer = document.getElementById("pluginContainer");
 
-  let plugins = [];
+  let plugins = {}; // Changed from array to object
   let categories = ["All"];
   let activeCategory = "All";
   let searchQuery = "";
@@ -34,7 +34,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     categories = ["All", ...categoryData];
-    plugins = Object.entries(pluginData);
+    plugins = pluginData; // Store directly as object
+    console.log(plugins);
     renderCategories();
     renderPlugins();
   }
@@ -83,18 +84,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function renderPlugins() {
-    const filteredPlugins = plugins.filter(([url, plugin]) => {
+    const pluginEntries = Object.entries(plugins);
+
+    const filteredPlugins = pluginEntries.filter(([_, plugin]) => {
       const lowerSearch = searchQuery.toLowerCase();
-      const name = (plugin.name || plugin.gauntlet?.name || "").toLowerCase();
-      const desc = (
-        plugin.description ||
-        plugin.gauntlet?.description ||
-        ""
-      ).toLowerCase();
       const matchesSearch =
         !lowerSearch ||
-        name.includes(lowerSearch) ||
-        desc.includes(lowerSearch);
+        plugin.name.toLowerCase().includes(lowerSearch) ||
+        plugin.description.toLowerCase().includes(lowerSearch);
       const matchesCategory =
         activeCategory === "All" || plugin.categories?.includes(activeCategory);
       return matchesSearch && matchesCategory;
@@ -107,18 +104,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     pluginContainer.innerHTML = filteredPlugins
       .map(([url, plugin]) => {
-        const name = plugin.name || plugin.gauntlet?.name || "Unnamed Plugin";
-        const desc =
-          plugin.description ||
-          plugin.gauntlet?.description ||
-          "No description available";
-        const version = plugin.version
-          ? `<span class="badge version">v${plugin.version}</span>`
-          : "";
-        const status = plugin.status
-          ? `<span class="badge status">${plugin.status}</span>`
-          : "";
-
         const entryPointsHTML = plugin.entrypoint
           ? `
                         <div class="section-title"><i class="fas fa-code"></i> Entry Points</div>
@@ -130,6 +115,25 @@ document.addEventListener("DOMContentLoaded", async () => {
                                         <span class="type">${entry.type}</span>
                                         <span class="name">${entry.name}</span>
                                         <p class="description">${entry.description}</p>
+                                        ${
+                                          entry.preferences
+                                            ? `
+                                          <div class="preferences">
+                                            ${entry.preferences
+                                              .map(
+                                                (pref) => `
+                                              <div class="preference">
+                                                <span class="pref-name">${pref.name}</span>
+                                                <span class="pref-type">${pref.type}</span>
+                                                <p class="pref-description">${pref.description}</p>
+                                              </div>
+                                            `,
+                                              )
+                                              .join("")}
+                                          </div>
+                                        `
+                                            : ""
+                                        }
                                     </div>
                                 `,
                               )
@@ -143,14 +147,29 @@ document.addEventListener("DOMContentLoaded", async () => {
                     <div class="permissions-container">${renderPermissions(plugin.permissions)}</div>
                 `;
 
+        const supportedSystemHTML = plugin.supported_system
+          ? `
+                    <div class="section-title"><i class="fas fa-desktop"></i> Supported Systems</div>
+                    <div class="supported-systems">
+                        ${plugin.supported_system
+                          .map(
+                            (sys) => `
+                            <span class="system">${sys.os}</span>
+                        `,
+                          )
+                          .join("")}
+                    </div>
+                `
+          : "";
+
         return `
                     <div class="plugin-card">
                         <div class="plugin-header">
-                            <h3 class="plugin-title"><i class="fas fa-cube"></i> ${name}</h3>
-                            <div class="plugin-badges">${version}${status}</div>
+                            <h3 class="plugin-title"><i class="fas fa-cube"></i> ${plugin.name}</h3>
                         </div>
-                        <p class="plugin-description">${desc}</p>
+                        <p class="plugin-description">${plugin.description}</p>
                         ${entryPointsHTML}
+                        ${supportedSystemHTML}
                         ${permissionsHTML}
                         <a href="${url}" class="plugin-url" target="_blank"><i class="fab fa-github"></i> View on GitHub</a>
                     </div>
