@@ -21,10 +21,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function initialize() {
     const [categoryData, pluginData] = await Promise.all([
       fetchData(
-        "https://raw.githubusercontent.com/bennowoforks/gauntlet-plugin-store/main/database/categories.json",
+        "https://raw.githubusercontent.com/bennowoforks/gauntlet-plugin-db/main/database/categories.json",
       ),
       fetchData(
-        "https://raw.githubusercontent.com/bennowoforks/gauntlet-plugin-store/main/database/plugins.json",
+        "https://raw.githubusercontent.com/bennowoforks/gauntlet-plugin-db/main/database/plugins.json",
       ),
     ]);
 
