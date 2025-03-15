@@ -34,9 +34,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     categories = ["All", ...categoryData];
-    plugins = pluginData; // Store directly as object
+    plugins = pluginData;
     console.log(plugins);
-    renderCategories();
+    // renderCategories();
     renderPlugins();
   }
 

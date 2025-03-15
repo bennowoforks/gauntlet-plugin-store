@@ -9,6 +9,27 @@
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
         />
+        <style>
+            .toast {
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background-color: #333;
+                color: white;
+                padding: 15px 25px;
+                border-radius: 5px;
+                display: none;
+                z-index: 1000;
+            }
+            .input-error {
+                border: 2px solid #ff0000;
+            }
+            .error-icon {
+                color: #ff0000;
+                margin-left: 10px;
+            }
+        </style>
     </head>
     <body>
         <div id="app">
@@ -33,11 +54,98 @@
                             placeholder="Search plugins..."
                         />
                     </div>
+                    <button class="register-button" onclick="openModal()">
+                        <i class="fas fa-plus"></i> Register New Plugin
+                    </button>
                 </header>
                 <div id="categoryContainer" class="categories"></div>
                 <div id="pluginContainer" class="plugins-grid"></div>
             </div>
         </div>
+
+        <div id="registerModal" class="modal">
+            <div class="modal-content">
+                <span class="close-button" onclick="closeModal()">&times;</span>
+                <h2>Register New Plugin</h2>
+                <form id="pluginForm" onsubmit="handleSubmit(event)">
+                    <div style="display: flex; align-items: center">
+                        <input
+                            type="url"
+                            id="pluginUrl"
+                            placeholder="Enter plugin URL"
+                            required
+                        />
+                    </div>
+                    <button type="submit" class="submit-button">Submit</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="toast" class="toast"></div>
+
         <script src="js/app.js"></script>
+        <script>
+            function showToast(message) {
+                const toast = document.getElementById("toast");
+                toast.textContent = message;
+                toast.style.display = "block";
+                setTimeout(() => {
+                    toast.style.display = "none";
+                }, 3000);
+            }
+
+            function openModal() {
+                document.getElementById("registerModal").style.display =
+                    "block";
+            }
+
+            function closeModal() {
+                document.getElementById("registerModal").style.display = "none";
+            }
+
+            async function handleSubmit(event) {
+                event.preventDefault();
+                const urlInput = document.getElementById("pluginUrl");
+                const errorIcon = document.getElementById("errorIcon");
+                const url = urlInput.value;
+
+                if (await isValidURL(url)) {
+                    const issueURL = `https://github.com/bennowoforks/gauntlet-plugin-db/issues/new?template=new-plugin.yml&title=[New Plugin]: ${url.split("/").pop()}&labels=new-plugin&plugin-url=${encodeURIComponent(url)}`;
+                    console.log("Redirecting to", url);
+                    window.location.href = issueURL;
+                } else {
+                    showToast("Invalid URL");
+                    urlInput.classList.add("input-error");
+                    errorIcon.style.display = "inline";
+                }
+
+                document.getElementById("pluginUrl").value = "";
+            }
+
+            async function isValidURL(url) {
+                try {
+                    const githubUrl = new URL(url);
+                    if (githubUrl.hostname !== "github.com") {
+                        return false;
+                    }
+
+                    // Check if gauntlet/release branch exists
+                    const parts = githubUrl.pathname.split("/");
+                    if (parts.length < 3) {
+                        return false;
+                    }
+
+                    const owner = parts[1];
+                    const repo = parts[2];
+
+                    const response = await fetch(
+                        `https://api.github.com/repos/${owner}/${repo}/branches/gauntlet/release`,
+                    );
+                    return response.ok;
+                } catch (error) {
+                    return false;
+                }
+            }
+        </script>
     </body>
 </html>
